@@ -1,8 +1,6 @@
-# Basic Sample Hardhat Project
+# NFT Contracts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
+A collection of NFT contracts, featuring boilerplates and various NFT projects
 
 ```shell
 npx hardhat accounts

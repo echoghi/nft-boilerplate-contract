@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/ERC721.sol": {
-      "lastModificationDate": 1645032056310,
-      "contentHash": "42d71ef7baba7c054cb4d9714761fc42",
+      "lastModificationDate": 1645039724442,
+      "contentHash": "752ade7879dcc3887a70d5a336d12a41",
       "sourceName": "cache/solpp-generated-contracts/ERC721.sol",
       "solcConfig": {
         "version": "0.8.11",
@@ -478,7 +478,7 @@
       ]
     },
     "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/SushiWorld.sol": {
-      "lastModificationDate": 1645032056396,
+      "lastModificationDate": 1645039724535,
       "contentHash": "1e19f26b56894dc2c03a2ceebb07ffce",
       "sourceName": "cache/solpp-generated-contracts/SushiWorld.sol",
       "solcConfig": {
@@ -518,9 +518,129 @@
       ]
     },
     "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/ERC721A.sol": {
-      "lastModificationDate": 1645032056380,
-      "contentHash": "28cb2c66384724a44518e21b23168752",
+      "lastModificationDate": 1645039724462,
+      "contentHash": "637b657747d4df5ec4c1bc7d93243fc6",
       "sourceName": "cache/solpp-generated-contracts/ERC721A.sol",
+      "solcConfig": {
+        "version": "0.8.11",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "erc721a/contracts/ERC721A.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "ERC721ATEST"
+      ]
+    },
+    "/Users/emilechoghi/code/nft-boilerplate-contract/node_modules/erc721a/contracts/ERC721A.sol": {
+      "lastModificationDate": 1645038904557,
+      "contentHash": "a19d9c7e77d7989971e49abfd29fccff",
+      "sourceName": "erc721a/contracts/ERC721A.sol",
+      "solcConfig": {
+        "version": "0.8.11",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "@openzeppelin/contracts/utils/Address.sol",
+        "@openzeppelin/contracts/utils/Context.sol",
+        "@openzeppelin/contracts/utils/Strings.sol",
+        "@openzeppelin/contracts/utils/introspection/ERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "ERC721A"
+      ]
+    },
+    "/Users/emilechoghi/code/nft-boilerplate-contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+      "lastModificationDate": 1645028309854,
+      "contentHash": "f4dd06783f321aa26179bc2b6e361c29",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.8.11",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Enumerable"
+      ]
+    },
+    "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/ERC721AFLAT.sol": {
+      "lastModificationDate": 1645039724520,
+      "contentHash": "0bdcf4f0bf7eea19f31137bc865605de",
+      "sourceName": "cache/solpp-generated-contracts/ERC721AFLAT.sol",
       "solcConfig": {
         "version": "0.8.11",
         "settings": {
@@ -553,7 +673,7 @@
         "Context",
         "ERC165",
         "ERC721A",
-        "ERC721ATEST",
+        "ERC721ATESTFLAT",
         "IERC165",
         "IERC721",
         "IERC721Enumerable",

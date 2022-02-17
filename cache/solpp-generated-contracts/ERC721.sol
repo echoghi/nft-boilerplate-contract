@@ -19,7 +19,7 @@ contract ERC721TEST is ERC721, Ownable, ReentrancyGuard {
   string public uriSuffix = ".json";
   string public hiddenMetadataUri;
   
-  uint256 public cost = 0.01 ether;
+  uint256 public cost = 0.04 ether;
   uint256 public maxSupply = 10000;
   uint256 public maxMintAmountPerTx = 5;
 
@@ -27,7 +27,7 @@ contract ERC721TEST is ERC721, Ownable, ReentrancyGuard {
   bool public revealed = false;
 
   constructor() ERC721("NAME", "SYMBOL") {
-    setHiddenMetadataUri("ipfs://__CID__/hidden.json");
+    setHiddenMetadataUri("ipfs://path_to_hidden_ipfs/hidden.json");
   }
 
   modifier mintCompliance(uint256 _mintAmount) {

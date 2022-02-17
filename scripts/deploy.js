@@ -32,4 +32,4 @@ main()
     });
 
 // verify with:
-// npx hardhat run verify [contract] --network rinkeby
+// npx hardhat verify [contract] --network rinkeby
