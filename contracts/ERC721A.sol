@@ -19,6 +19,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   string public _baseTokenURI;
   
   uint256 public price = 0.01 ether;
+  // supply is 0 indexed so max supply is decremented by 1
   uint256 public constant maxSupply = 9;
   uint256 public maxMintAmountPerTx = 5;
 

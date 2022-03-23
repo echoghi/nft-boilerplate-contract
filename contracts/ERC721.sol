@@ -48,11 +48,11 @@ contract ERC721TEST is ERC721, Ownable {
     nextTokenId = _nextTokenId;
   }
 
-  function devMint(address receiver, uint256 qty) external onlyOwner {
+  function devMint(address receiver, uint256 _quantity) external onlyOwner {
     uint256 _nextTokenId = nextTokenId;
-    if (_nextTokenId + (qty - 1) > maxSupply) revert SoldOut();
+    if (_nextTokenId + (_quantity - 1) > maxSupply) revert SoldOut();
 
-    for (uint256 i = 0; i < qty; i++) {
+    for (uint256 i = 0; i < _quantity; i++) {
         _mint(receiver, _nextTokenId);
 
         unchecked {

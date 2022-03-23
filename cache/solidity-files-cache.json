@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/ERC721.sol": {
-      "lastModificationDate": 1648057547373,
-      "contentHash": "238a423dcbc90fbe9fb5677f63677d8e",
+      "lastModificationDate": 1648075427999,
+      "contentHash": "1766ce1e7fe0eb1b3a8cb3acdc018c0c",
       "sourceName": "cache/solpp-generated-contracts/ERC721.sol",
       "solcConfig": {
         "version": "0.8.11",
@@ -516,8 +516,8 @@
       ]
     },
     "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/ERC721A.sol": {
-      "lastModificationDate": 1648057547394,
-      "contentHash": "24cbf61225bbc37ace4553968df3286b",
+      "lastModificationDate": 1648074332402,
+      "contentHash": "55abbedb71ddb5ce804e760d1c4e8144",
       "sourceName": "cache/solpp-generated-contracts/ERC721A.sol",
       "solcConfig": {
         "version": "0.8.11",
@@ -683,8 +683,8 @@
       ]
     },
     "/Users/emilechoghi/code/nft-boilerplate-contract/cache/solpp-generated-contracts/ERC721WL.sol": {
-      "lastModificationDate": 1648057547419,
-      "contentHash": "415b912ccff67b2527f22cdaab1d8bd2",
+      "lastModificationDate": 1648075428052,
+      "contentHash": "ada682e83ac1a1a4d78e581e4ddb1fb8",
       "sourceName": "cache/solpp-generated-contracts/ERC721WL.sol",
       "solcConfig": {
         "version": "0.8.11",

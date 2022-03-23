@@ -23,15 +23,16 @@ contract ERC721WL is ERC721, Ownable, Ticketed {
   uint256 public price = 0.01 ether;
   uint256 public maxMintAmountPerTx = 5;
 
-  bool public saleActive = false;
+  bool public presaleActive = false;
+  bool public publicSaleActive = false;
 
-  constructor() ERC721("Passages", "PSG") {
-    _baseTokenURI = "ipfs://QmP3BYoGotb6NGrxxHGWJiS1MoheLQLGoCrFaPr5uuRtiv/";
+  constructor() ERC721("Test", "TEST") {
+    _baseTokenURI = "ipfs://path_to_hidden_ipfs/";
   }
 
-  function mint(bytes[] calldata _signatures, uint256[] calldata spotIds) public payable {
+  function allowlistMint(bytes[] calldata _signatures, uint256[] calldata spotIds) public payable {
     uint256 _nextTokenId = nextTokenId;
-    if (!saleActive) revert SaleInactive();
+    if (!presaleActive) revert SaleInactive();
     // offset by 1 because we start at 1, and nextTokenId is incremented _after_ mint
     if (_nextTokenId + (spotIds.length - 1) > maxSupply) revert SoldOut();
     if(msg.sender != tx.origin) revert NoBots();
@@ -50,11 +51,30 @@ contract ERC721WL is ERC721, Ownable, Ticketed {
     nextTokenId = _nextTokenId;
   }
 
-  function devMint(address receiver, uint256 qty) external onlyOwner {
+  function mint(uint256 _quantity) public payable {
     uint256 _nextTokenId = nextTokenId;
-    if (_nextTokenId + (qty - 1) > maxSupply) revert SoldOut();
+    if (!publicSaleActive) revert SaleInactive();
+    // offset by 1 because we start at 1, and nextTokenId is incremented _after_ mint
+    if (_nextTokenId + (_quantity - 1) > maxSupply) revert SoldOut();
+    if(msg.sender != tx.origin) revert NoBots();
+    if (msg.value != price * _quantity) revert InvalidPrice();
 
-    for (uint256 i = 0; i < qty; i++) {
+    for (uint256 i = 0; i < _quantity; i++) {
+      _mint(msg.sender, _nextTokenId);
+      
+      unchecked {
+        _nextTokenId++;
+      }
+    }
+
+    nextTokenId = _nextTokenId;
+  }
+
+  function devMint(address receiver, uint256 _quantity) external onlyOwner {
+    uint256 _nextTokenId = nextTokenId;
+    if (_nextTokenId + (_quantity - 1) > maxSupply) revert SoldOut();
+
+    for (uint256 i = 0; i < _quantity; i++) {
         _mint(receiver, _nextTokenId);
 
         unchecked {
@@ -84,8 +104,12 @@ contract ERC721WL is ERC721, Ownable, Ticketed {
     maxMintAmountPerTx = _maxMintAmountPerTx;
   }
 
-  function setSaleState(bool _state) public onlyOwner {
-    saleActive = _state;
+  function setPresaleState(bool _state) public onlyOwner {
+    presaleActive = _state;
+  }
+
+  function setPublicSaleState(bool _state) public onlyOwner {
+    publicSaleActive = _state;
   }
 
   function totalSupply() public view virtual returns (uint256) {
