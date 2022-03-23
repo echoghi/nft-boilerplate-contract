@@ -6,49 +6,43 @@ import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+error SaleInactive();
+error SoldOut();
+error NoBots();
+error InvalidPrice();
+error InvalidQuantity();
+error WithdrawFailed();
+
 contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   using Strings for uint256;
 
-  string public uriPrefix = "";
-  string public uriSuffix = ".json";
-  string public hiddenMetadataUri;
+  string public _baseTokenURI;
   
-  uint256 public cost = 0.04 ether;
-  uint256 public maxSupply = 7776;
+  uint256 public price = 0.01 ether;
+  uint256 public constant maxSupply = 9999;
   uint256 public maxMintAmountPerTx = 5;
 
-  bool public paused = true;
-  bool public revealed = false;
+  bool public saleActive = false;
 
   constructor() ERC721A("NFT Name", "TOKEN") {
-    setHiddenMetadataUri("ipfs://path_to_hidden_ipfs/hidden.json");
+    _baseTokenURI = "ipfs://path_to_hidden_ipfs/";
   }
 
-  modifier mintCompliance(uint256 _mintAmount) {
-    require(_mintAmount > 0 && _mintAmount <= maxMintAmountPerTx, "Invalid mint amount!");
-    require(totalSupply() + _mintAmount <= maxSupply, "Max supply exceeded!");
-    _;
+  function mint(uint256 _quantity) external payable {
+    if (!saleActive) revert SaleInactive();
+    if(_quantity < 1 || _quantity > maxMintAmountPerTx) revert InvalidQuantity();
+    // offset by 1 because we start at 1, and nextTokenId is incremented _after_ mint
+    if (totalSupply() + _quantity > maxSupply) revert SoldOut();
+    if(msg.sender != tx.origin) revert NoBots();
+    if (msg.value != price * _quantity) revert InvalidPrice();
+
+    _safeMint(msg.sender, _quantity);
   }
 
-  function refundIfOver(uint256 price) private {
-    require(msg.value >= price, "Need to send more ETH.");
-    if (msg.value > price) {
-      payable(msg.sender).transfer(msg.value - price);
-    }
-  }
+  function devMint(address receiver, uint256 _quantity) external onlyOwner {
+    if (totalSupply() + _quantity > maxSupply) revert InvalidQuantity();
 
-  function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) {
-    require(!paused, "The contract is paused!");
-
-    if (msg.sender != owner()) {
-      refundIfOver(cost * _mintAmount);
-    }
-
-    _safeMint(msg.sender, _mintAmount);
-  }
-  
-  function airdrop(uint256 _mintAmount, address _receiver) public mintCompliance(_mintAmount) onlyOwner {
-    _safeMint(_receiver, _mintAmount);
+    _safeMint(receiver, _quantity);
   }
 
   function getOwnershipData(uint256 tokenId)
@@ -71,50 +65,34 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
       "ERC721Metadata: URI query for nonexistent token"
     );
 
-    if (revealed == false) {
-      return hiddenMetadataUri;
-    }
-
     string memory currentBaseURI = _baseURI();
     return bytes(currentBaseURI).length > 0
-        ? string(abi.encodePacked(currentBaseURI, _tokenId.toString(), uriSuffix))
+        ? string(abi.encodePacked(currentBaseURI, _tokenId.toString()))
         : "";
   }
 
-  function setRevealed(bool _state) public onlyOwner {
-    revealed = _state;
-  }
-
-  function setCost(uint256 _cost) public onlyOwner {
-    cost = _cost;
+  function setPrice(uint256 _price) public onlyOwner {
+    price = _price;
   }
 
   function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyOwner {
     maxMintAmountPerTx = _maxMintAmountPerTx;
   }
 
-  function setHiddenMetadataUri(string memory _hiddenMetadataUri) public onlyOwner {
-    hiddenMetadataUri = _hiddenMetadataUri;
+  function setSaleState(bool _state) public onlyOwner {
+    saleActive = _state;
   }
 
-  function setUriPrefix(string memory _uriPrefix) public onlyOwner {
-    uriPrefix = _uriPrefix;
-  }
-
-  function setUriSuffix(string memory _uriSuffix) public onlyOwner {
-    uriSuffix = _uriSuffix;
-  }
-
-  function setPaused(bool _state) public onlyOwner {
-    paused = _state;
-  }
-
-  function withdraw() public payable onlyOwner nonReentrant {
+  function withdraw() public payable onlyOwner {
     (bool os, ) = payable(owner()).call{value: address(this).balance}("");
-    require(os);
+    if(!os) revert WithdrawFailed();
   }
 
   function _baseURI() internal view virtual override returns (string memory) {
-    return uriPrefix;
+    return _baseTokenURI;
+  }
+
+  function setBaseURI(string memory baseURI) external onlyOwner {
+    _baseTokenURI = baseURI;
   }
 }

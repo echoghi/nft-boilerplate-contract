@@ -1,12 +1,13 @@
 const { expect, assert } = require('chai');
 const { ethers } = require('hardhat');
 
-const unrevealedArt = 'ipfs://path_to_hidden_ipfs/hidden.json';
+const unrevealedArt = 'ipfs://path_to_unrevealed_ipfs/';
 const revealedArt = 'ipfs://path_to_art_ipfs/';
 
 let nftContract;
 let contractOwner;
 let testUser;
+let price;
 
 const convertBalance = (wei) => ethers.utils.formatEther(wei.toString());
 
@@ -19,33 +20,46 @@ beforeEach(async () => {
 
     nftContract = await NFT.deploy();
     await nftContract.deployed();
+
+    price = await nftContract.price();
 });
 
 describe('ERC721', function () {
     it('Should return the unrevealed ipfs uri upon deployment', async function () {
-        expect(await nftContract.hiddenMetadataUri()).to.equal(unrevealedArt);
+        expect(await nftContract._baseTokenURI()).to.equal(unrevealedArt);
     });
 
-    it('Should be paused by default', async function () {
-        expect(await nftContract.paused()).to.equal(true);
+    it('Sale should be inactive by default', async function () {
+        try {
+            // attempt mint
+            await nftContract.mint(1, { value: 0 });
+            assert(false);
+        } catch (err) {
+            // check for error
+            assert(err);
+        }
+
+        expect(await nftContract.saleActive()).to.equal(false);
     });
 
     it('Should unpause', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
+        const unpauseTX = await nftContract.setSaleState(true);
 
         // wait until transaction is mined
         unpauseTX.wait();
 
-        expect(await nftContract.paused()).to.equal(false);
+        expect(await nftContract.saleActive()).to.equal(true);
     });
 
-    it('Should mint when unpaused', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
+    it('Should mint when sale is active', async function () {
+        const unpauseTX = await nftContract.setSaleState(true);
 
         // wait until transaction is mined
         unpauseTX.wait();
 
-        const mintTX = await nftContract.mint(3, { value: 0 });
+        const mintValue = `${+convertBalance(price) * 3}`;
+
+        const mintTX = await nftContract.mint(3, { value: ethers.utils.parseEther(mintValue) });
 
         // wait until transaction is mined
         mintTX.wait();
@@ -53,28 +67,8 @@ describe('ERC721', function () {
         expect(await nftContract.totalSupply()).to.equal(3);
     });
 
-    it('Should refund user if too much ETH is sent to mint', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
-
-        // wait until transaction is mined
-        unpauseTX.wait();
-
-        const initialBalance = await ethers.provider.getBalance(testUser.address);
-
-        const mintTX = await nftContract.connect(testUser).mint(2, { value: ethers.utils.parseEther('3') });
-
-        // wait until transaction is mined
-        mintTX.wait();
-
-        const finalBalance = await ethers.provider.getBalance(testUser.address);
-
-        const ethSpent = convertBalance(initialBalance) - convertBalance(finalBalance);
-
-        expect(ethSpent.toFixed(2)).to.equal('0.08');
-    });
-
     it('Should enforce correct value when minting as non-owner', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
+        const unpauseTX = await nftContract.setSaleState(true);
 
         // wait until transaction is mined
         unpauseTX.wait();
@@ -88,12 +82,18 @@ describe('ERC721', function () {
             assert(err);
         }
 
-        const mintTX = await nftContract.connect(testUser).mint(1, { value: ethers.utils.parseEther('0.04') });
+        const firstMintValue = `${+convertBalance(price) * 1}`;
+
+        const mintTX = await nftContract.connect(testUser).mint(1, { value: ethers.utils.parseEther(firstMintValue) });
 
         // wait until transaction is mined
         mintTX.wait();
 
-        const secondMintTX = await nftContract.connect(testUser).mint(3, { value: ethers.utils.parseEther('0.12') });
+        const secondMintValue = `${+convertBalance(price) * 3}`;
+
+        const secondMintTX = await nftContract
+            .connect(testUser)
+            .mint(3, { value: ethers.utils.parseEther(secondMintValue) });
 
         // wait until transaction is mined
         secondMintTX.wait();
@@ -102,7 +102,7 @@ describe('ERC721', function () {
     });
 
     it('Should enforce max mint cap', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
+        const unpauseTX = await nftContract.setSaleState(true);
 
         // wait until transaction is mined
         unpauseTX.wait();
@@ -136,8 +136,10 @@ describe('ERC721', function () {
             assert(err);
         }
 
+        const mintValue = `${+convertBalance(price) * 5}`;
+
         // attempt max mint
-        const mintTX = await nftContract.connect(testUser).mint(5, { value: ethers.utils.parseEther('0.20') });
+        const mintTX = await nftContract.connect(testUser).mint(5, { value: ethers.utils.parseEther(mintValue) });
 
         // wait until transaction is mined
         mintTX.wait();
@@ -146,13 +148,13 @@ describe('ERC721', function () {
     });
 
     it('Should not be revealed by default', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
+        const unpauseTX = await nftContract.setSaleState(true);
 
         // wait until transaction is mined
         unpauseTX.wait();
 
         // attempt max mint as user
-        const mintTX = await nftContract.connect(testUser).mint(5, { value: ethers.utils.parseEther('0.20') });
+        const mintTX = await nftContract.connect(testUser).mint(5, { value: ethers.utils.parseEther('0.05') });
 
         // wait until transaction is mined
         mintTX.wait();
@@ -160,35 +162,31 @@ describe('ERC721', function () {
         // query token uri for minted token
         const secondToken = await nftContract.tokenURI(2);
 
-        expect(await nftContract.revealed()).to.equal(false);
-        expect(secondToken).to.equal('ipfs://path_to_hidden_ipfs/hidden.json');
+        expect(secondToken).to.equal(`${unrevealedArt}2`);
     });
 
     it('Should reveal correct uri after mint + ipfs update + reveal', async function () {
-        const unpauseTX = await nftContract.setPaused(false);
+        const unpauseTX = await nftContract.setSaleState(true);
 
         // wait until transaction is mined
         unpauseTX.wait();
 
+        const mintValue = `${+convertBalance(price) * 5}`;
+
         // attempt max mint as user
-        const mintTX = await nftContract.connect(testUser).mint(5, { value: ethers.utils.parseEther('0.20') });
+        const mintTX = await nftContract.connect(testUser).mint(5, { value: ethers.utils.parseEther(mintValue) });
 
         // wait until transaction is mined
         mintTX.wait();
 
-        const setRevealTX = await nftContract.setUriPrefix(revealedArt);
+        const setRevealTX = await nftContract.setBaseURI(revealedArt);
 
         // wait until transaction is mined
         setRevealTX.wait();
 
-        const revealTX = await nftContract.setRevealed(true);
-
-        // wait until transaction is mined
-        revealTX.wait();
-
         // query token uri for minted token
         const secondToken = await nftContract.tokenURI(2);
 
-        expect(secondToken).to.equal('ipfs://path_to_art_ipfs/2.json');
+        expect(secondToken).to.equal('ipfs://path_to_art_ipfs/2');
     });
 });
