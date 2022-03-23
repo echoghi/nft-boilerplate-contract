@@ -19,7 +19,7 @@ contract ERC721WL is ERC721, Ownable, Ticketed {
   string public _baseTokenURI;
   
   uint256 public nextTokenId = 1;
-  uint256 public constant maxSupply = 10000;
+  uint256 public constant maxSupply = 10;
   uint256 public price = 0.01 ether;
   uint256 public maxMintAmountPerTx = 5;
 
@@ -33,7 +33,7 @@ contract ERC721WL is ERC721, Ownable, Ticketed {
     uint256 _nextTokenId = nextTokenId;
     if (!saleActive) revert SaleInactive();
     // offset by 1 because we start at 1, and nextTokenId is incremented _after_ mint
-    if (_nextTokenId > maxSupply) revert SoldOut();
+    if (_nextTokenId + (spotIds.length - 1) > maxSupply) revert SoldOut();
     if(msg.sender != tx.origin) revert NoBots();
     if (msg.value != price * spotIds.length) revert InvalidPrice();
 
@@ -52,7 +52,7 @@ contract ERC721WL is ERC721, Ownable, Ticketed {
 
   function devMint(address receiver, uint256 qty) external onlyOwner {
     uint256 _nextTokenId = nextTokenId;
-    if (_nextTokenId + (qty - 1) > maxSupply) revert InvalidQuantity();
+    if (_nextTokenId + (qty - 1) > maxSupply) revert SoldOut();
 
     for (uint256 i = 0; i < qty; i++) {
         _mint(receiver, _nextTokenId);

@@ -173,4 +173,29 @@ describe('ERC721A', function () {
 
         expect(secondToken).to.equal('ipfs://path_to_art_ipfs/2');
     });
+
+    it('should sell out', async function () {
+        const unpauseTX = await nftContract.setSaleState(true);
+
+        // wait until transaction is mined
+        unpauseTX.wait();
+
+        const mintTX = await nftContract.devMint(testUser.address, 10, { value: 0 });
+
+        // wait until transaction is mined
+        mintTX.wait();
+
+        let executed;
+
+        try {
+            // attempt to mint more
+            await nftContract.devMint(testUser.address, 2, { value: 0 });
+            executed = 'success';
+        } catch (err) {
+            executed = 'fail';
+        }
+
+        assert.equal(executed, 'fail');
+        expect(await nftContract.totalSupply()).to.equal(10);
+    });
 });

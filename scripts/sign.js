@@ -9,6 +9,7 @@ const whitelist = [
     '0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2'
 ];
 
+// Sign an array of whitelist addresses for use with ERC-721WL
 async function main() {
     // eth-provider is a simple EIP-1193 provider
     // const ethProvider = require('eth-provider');

@@ -20,7 +20,7 @@ contract ERC721TEST is ERC721, Ownable {
   string public _baseTokenURI;
   
   uint256 public nextTokenId = 1;
-  uint256 public constant maxSupply = 10000;
+  uint256 public constant maxSupply = 10;
   uint256 public price = 0.01 ether;
   uint256 public maxMintAmountPerTx = 5;
 
@@ -35,7 +35,7 @@ contract ERC721TEST is ERC721, Ownable {
     if (!saleActive) revert SaleInactive();
     if(_quantity < 1 || _quantity > maxMintAmountPerTx) revert InvalidQuantity();
     // offset by 1 because we start at 1, and nextTokenId is incremented _after_ mint
-    if (_nextTokenId > maxSupply) revert SoldOut();
+    if (_nextTokenId + (_quantity - 1) > maxSupply) revert SoldOut();
     if(msg.sender != tx.origin) revert NoBots();
     if (msg.value != price * _quantity) revert InvalidPrice();
 
@@ -52,7 +52,7 @@ contract ERC721TEST is ERC721, Ownable {
 
   function devMint(address receiver, uint256 qty) external onlyOwner {
     uint256 _nextTokenId = nextTokenId;
-    if (_nextTokenId + (qty - 1) > maxSupply) revert InvalidQuantity();
+    if (_nextTokenId + (qty - 1) > maxSupply) revert SoldOut();
 
     for (uint256 i = 0; i < qty; i++) {
         _mint(receiver, _nextTokenId);

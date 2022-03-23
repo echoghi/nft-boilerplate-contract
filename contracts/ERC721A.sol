@@ -19,7 +19,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   string public _baseTokenURI;
   
   uint256 public price = 0.01 ether;
-  uint256 public constant maxSupply = 9999;
+  uint256 public constant maxSupply = 9;
   uint256 public maxMintAmountPerTx = 5;
 
   bool public saleActive = false;
@@ -31,8 +31,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   function mint(uint256 _quantity) external payable {
     if (!saleActive) revert SaleInactive();
     if(_quantity < 1 || _quantity > maxMintAmountPerTx) revert InvalidQuantity();
-    // offset by 1 because we start at 1, and nextTokenId is incremented _after_ mint
-    if (totalSupply() + _quantity > maxSupply) revert SoldOut();
+    if (totalSupply() + _quantity > (maxSupply + 1)) revert SoldOut();
     if(msg.sender != tx.origin) revert NoBots();
     if (msg.value != price * _quantity) revert InvalidPrice();
 
@@ -40,7 +39,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   }
 
   function devMint(address receiver, uint256 _quantity) external onlyOwner {
-    if (totalSupply() + _quantity > maxSupply) revert InvalidQuantity();
+    if (totalSupply() + _quantity > (maxSupply + 1)) revert SoldOut();
 
     _safeMint(receiver, _quantity);
   }
