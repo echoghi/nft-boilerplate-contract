@@ -7,6 +7,7 @@ pragma solidity ^0.8.11;
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 error SaleInactive();
 error SoldOut();
@@ -22,7 +23,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   
   uint256 public price = 0.01 ether;
   // supply is 0 indexed so max supply is decremented by 1
-  uint256 public constant maxSupply = 9;
+  uint256 public constant maxSupply = 10;
   uint256 public maxMintAmountPerTx = 5;
 
   bool public saleActive = false;
@@ -34,7 +35,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   function mint(uint256 _quantity) external payable {
     if (!saleActive) revert SaleInactive();
     if(_quantity < 1 || _quantity > maxMintAmountPerTx) revert InvalidQuantity();
-    if (totalSupply() + _quantity > (maxSupply + 1)) revert SoldOut();
+    if (totalSupply() + _quantity > maxSupply) revert SoldOut();
     if(msg.sender != tx.origin) revert NoBots();
     if (msg.value != price * _quantity) revert InvalidPrice();
 
@@ -42,7 +43,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
   }
 
   function devMint(address receiver, uint256 _quantity) external onlyOwner {
-    if (totalSupply() + _quantity > (maxSupply + 1)) revert SoldOut();
+    if (totalSupply() + _quantity > maxSupply) revert SoldOut();
 
     _safeMint(receiver, _quantity);
   }
@@ -52,7 +53,7 @@ contract ERC721ATEST is Ownable, ERC721A, ReentrancyGuard {
     view
     returns (TokenOwnership memory)
   {
-    return ownershipOf(tokenId);
+    return _ownershipOf(tokenId);
   }
 
   function tokenURI(uint256 _tokenId)

@@ -25,14 +25,14 @@ module.exports = {
     solidity: '0.8.11',
     networks: {
         hardhat: {},
-        rinkeby: {
+        goerli: {
             url: API_URL,
             accounts: [`0x${PRIVATE_KEY}`]
         }
     },
     etherscan: {
         apiKey: {
-            rinkeby: ETHERSCAN_KEY
+            goerli: ETHERSCAN_KEY
         }
     }
 };

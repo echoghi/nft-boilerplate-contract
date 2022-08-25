@@ -14,7 +14,7 @@ async function main() {
     // await hre.run('compile');
 
     // We get the contract to deploy
-    const NFT = await hre.ethers.getContractFactory('SushiWorld');
+    const NFT = await hre.ethers.getContractFactory('ERC721ATEST');
     const nft = await NFT.deploy();
 
     await nft.deployed();
@@ -32,4 +32,4 @@ main()
     });
 
 // verify with:
-// npx hardhat verify [contract] --network rinkeby
+// npx hardhat verify [contract] --network goerli
